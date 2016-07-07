@@ -79,6 +79,31 @@ header.site-header {
 	margin: -15px 0 0;
 }
 
+.hero-home-link {
+	color: #ffffff;
+	float: right;
+	margin-top: 22px;
+	position: relative;
+	text-decoration: none;
+}
+
+.hero-home-link:before {
+	background: url(../images/arrow-left.svg) no-repeat center center;
+	background-size: 15px;
+	content: '';
+	display: block;
+	height: 20px;
+	left: -27px;
+	position: absolute;
+	top: 3px;
+	transition: left 0.2s ease;
+	width: 20px;
+}
+
+.hero-home-link:hover:before {
+	left: -29px;
+}
+
 /* Icons */
 .icon {
 	display: inline-block;
