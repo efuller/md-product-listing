@@ -11,8 +11,18 @@ app.CartModel = ( function() {
 		items.push(item);
 	}
 
+	function removeItem(id) {
+		// Find the item
+		var newItems = items.filter(function(item) {
+			return item.id !== id;
+		});
+
+		items = newItems;
+	}
+
 	return {
 		getItems: getItems,
 		addItem: addItem,
+		removeItem: removeItem,
 	}
 })();

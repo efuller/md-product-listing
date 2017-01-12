@@ -22,14 +22,14 @@ app.Helpers = {
 		}
 	},
 	buildCart: function composeCart(items) {
-		var output = '';
+		var completeOutput = [];
 
 		// Create an element to hold our cart HTML.
 		var cart = document.createElement('div');
 
 		// Loop over each cart item.
 		items.forEach(function(item) {
-			output = '';
+			var output = '';
 			output += '<div data-id="' + item.id + '" class="item-row">';
 			output += '<div class="item-image">';
 			output += '<img class="cart item-image" src="http://unsplash.it/80/80" alt="">';
@@ -45,13 +45,18 @@ app.Helpers = {
 			output += '<div class="item-remove">';
 			output += '<button class="remove">X</button>';
 			output += '</div>';
+			output += '</div>';
 
+			completeOutput.push(output);
 		});
 
 		// Add in the HTML to our cart element.
-		cart.innerHTML = output;
+		cart.innerHTML = completeOutput.join('');
 
 		// Return our cart!
 		return cart;
+	},
+	getGrandParentNode: function(parentNode) {
+		return parentNode.parentNode;
 	}
 };

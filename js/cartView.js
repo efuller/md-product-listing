@@ -12,12 +12,14 @@ app.CartView = ( function() {
 		// Build the cart
 		var cart = app.Helpers.buildCart(items);
 
+		c.cartList.innerHTML = '';
+		// Append the cart to the DOM.
 		c.cartList.appendChild(cart);
 	}
 
 	function init() {
 		// Cache the cart
-		c.cartList = document.getElementById('cart-list');
+		c.cartList = document.getElementById('shopping-cart-list');
 
 		render();
 	}
