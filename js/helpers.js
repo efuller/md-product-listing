@@ -5,6 +5,7 @@ app.Helpers = {
 	createCartObject: function(elem) {
 		var cartItemObject = {};
 
+		var id = elem.getAttribute('data-id');
 		var name = elem.querySelector('.name').textContent;
 		var description = elem.querySelector('.description').textContent;
 		var imageURL = elem.querySelector('.item-image').src;
@@ -12,6 +13,7 @@ app.Helpers = {
 		var category = elem.querySelector('.category').textContent;
 
 		return cartItemObject = {
+			id: id,
 			name: name,
 			description: description,
 			imageURL: imageURL,
@@ -28,7 +30,7 @@ app.Helpers = {
 		// Loop over each cart item.
 		items.forEach(function(item) {
 			output = '';
-			output += '<div class="item-row">';
+			output += '<div data-id="' + item.id + '" class="item-row">';
 			output += '<div class="item-image">';
 			output += '<img class="cart item-image" src="http://unsplash.it/80/80" alt="">';
 			output += '<p class="category">Art</p>';
