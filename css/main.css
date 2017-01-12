@@ -161,11 +161,23 @@ header.site-header {
 	text-transform: uppercase;
 }
 
-.card .description {
+.card .description,
+.card .category,
+.item-image .category {
 	color: #b5b5b7;
 	font-size: 14px;
 	margin-top: 5px;
 	text-align: center;
+}
+
+.card .category {
+	margin-top: 10px;
+	margin-bottom: 0;
+}
+
+.item-image .category {
+	margin-top: 0;
+	margin-bottom: 0;
 }
 
 .add-to-cart {
