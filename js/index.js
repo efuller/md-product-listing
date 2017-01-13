@@ -1,4 +1,4 @@
 var app = app || {};
 (function(window, app) {
-	app.CartApp()
+	app.CartController()
 })(window, app);

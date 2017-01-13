@@ -2,28 +2,57 @@ var app = app || {};
 
 app.CartView = ( function() {
 
-	var c = {}; // Cache object.
+	// Cache object for DOM elements.
+	var dom = {};
 
+	// Render the cart.
 	function render() {
 
 		// Get all the cart items.
 		var items = app.CartModel.getItems();
 
+		buildCartView(items);
+		updateSubtotalView();
+		updateTotalView();
+	}
+
+	// Update the total
+	function updateTotalView() {
+		var total = app.CartModel.getTotal();
+
+		dom.total.innerHTML = '$' + total;
+	}
+
+	// Update the subtotal
+	function updateSubtotalView() {
+		var subtotal = app.CartModel.getSubtotal();
+
+		dom.subtotal.innerHTML = '$' + subtotal;
+	}
+
+	// Build out the cart.
+	function buildCartView(items) {
+
 		// Build the cart
 		var cart = app.Helpers.buildCart(items);
 
-		c.cartList.innerHTML = '';
+		dom.cartList.innerHTML = '';
+
 		// Append the cart to the DOM.
-		c.cartList.appendChild(cart);
+		dom.cartList.appendChild(cart);
 	}
 
+	// Initialize.
 	function init() {
 		// Cache the cart
-		c.cartList = document.getElementById('shopping-cart-list');
+		dom.cartList = document.getElementById('shopping-cart-list');
+		dom.subtotal = document.querySelector('.cart-totals .subtotal-value');
+		dom.total = document.querySelector('.cart-totals .total-value');
 
 		render();
 	}
 
+	// Public API
 	return {
 		init: init,
 		render: render,
