@@ -16,22 +16,23 @@ app.CartView = ( function() {
 		updateTotalView();
 	}
 
-	function updateQuantityView() {
-
-	}
-
 	// Update the total
 	function updateTotalView() {
 		var total = app.CartModel.getTotal();
 
-		dom.total.innerHTML = '$' + total;
+		dom.total.innerHTML = '$' + total.toFixed(2);
 	}
 
 	// Update the subtotal
 	function updateSubtotalView() {
 		var subtotal = app.CartModel.getSubtotal();
 
-		dom.subtotal.innerHTML = '$' + subtotal;
+		dom.subtotal.innerHTML = '$' + subtotal.toFixed(2);
+	}
+
+	function updateTotalAndSubtotalView() {
+		updateSubtotalView();
+		updateTotalView();
 	}
 
 	// Build out the cart.
@@ -60,5 +61,6 @@ app.CartView = ( function() {
 	return {
 		init: init,
 		render: render,
+		updateTotalAndSubtotalView: updateTotalAndSubtotalView,
 	}
 })();

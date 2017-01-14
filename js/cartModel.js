@@ -15,6 +15,11 @@ app.CartModel = ( function() {
 		items: [],
 	};
 
+	// Get the cart.
+	function getCart() {
+		return cartObject;
+	}
+
 	// Get the subtotal.
 	function getSubtotal() {
 		return cartObject.subtotal;
@@ -115,6 +120,7 @@ app.CartModel = ( function() {
 	// Public API
 	return {
 		getItems: getItems,
+		getCart: getCart,
 		addItem: addItem,
 		removeItem: removeItem,
 		updateSubtotal: updateSubtotal,

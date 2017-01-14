@@ -18,6 +18,8 @@ app.CartController = function() {
 	function cacheDOM() {
 		dom.addToCartBtns = document.querySelectorAll('#cards .add-to-cart');
 		dom.shoppingCart = document.getElementById('shopping-cart-list');
+		dom.updatePriceContainer = document.getElementById('update-price-container');
+		dom.updatePrice = document.getElementById('update-price');
 	}
 
 	// Bind events.
@@ -30,6 +32,8 @@ app.CartController = function() {
 
 		// Bind the delete item from the cart.
 		dom.shoppingCart.addEventListener('click', handleCartClicks);
+
+		dom.updatePrice.addEventListener('click', handlePriceUpdate);
 
 		// Bind a change event for the quantity input
 		dom.shoppingCart.addEventListener('change', handleCartClicks)
@@ -60,10 +64,8 @@ app.CartController = function() {
 			app.CartModel.removeItem(id);
 			app.CartView.render();
 		} else {
-			app.CartModel.updateByID(id, { quantity: value});
-			app.CartModel.updateSubtotal();
-			app.CartModel.updateTotal();
-			// app.CartView.render();
+			app.CartModel.updateByID(id, {quantity: value});
+			dom.updatePriceContainer.style.display = "flex";
 		}
 	}
 
@@ -78,10 +80,15 @@ app.CartController = function() {
 		// If we are changing the quantity of an item in the shopping cart.
 		if (e.target.parentNode.className === 'item-quantity' && e.type === 'change') {
 			handleQuantityChange(e);
-			e.target.focus();
 		}
 
 		return false;
+	}
+
+	function handlePriceUpdate() {
+		app.CartModel.updateSubtotal();
+		app.CartModel.updateTotal();
+		app.CartView.render();
 	}
 
 	// Add and item to the cart.

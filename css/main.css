@@ -291,6 +291,10 @@ header.site-header {
 	font-weight: 700;
 }
 
+#update-price-container {
+	display: none;
+}
+
 /* Checkout */
 .checkout button {
 	background-color: #f2b632;
