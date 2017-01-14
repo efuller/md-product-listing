@@ -34,23 +34,17 @@ app.CartModel = ( function() {
 		return cartObject.items; // Return cart items.
 	}
 
-	// Find an item by ID.
-	function findByID(id) {
-		// Get items.
+	// See if an item is already in the cart.
+	function isInCart(id) {
+		// Get the cart items.
 		var items = getItems();
 
-		// Find the item with the id passed in.
-		var item = items.filter(function(item) {
-			return item.id = id;
+		// Check and see if the item is in the cart.
+		var inCart = items.filter(function(item) {
+			return item.id === id;
 		});
 
-		// Return the item if we found one.
-		if (!item) {
-			console.warn('There was no item with that ID.');
-			return false;
-		} else {
-			return item;
-		}
+		return inCart.length > 0;
 	}
 
 	// Update and item by ID.
@@ -126,6 +120,7 @@ app.CartModel = ( function() {
 		updateSubtotal: updateSubtotal,
 		getSubtotal: getSubtotal,
 		getTotal: getTotal,
+		isInCart: isInCart,
 		updateTotal: updateTotal,
 		updateByID: updateByID,
 		cartObject: cartObject,

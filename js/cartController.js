@@ -93,7 +93,15 @@ app.CartController = function() {
 
 	// Add and item to the cart.
 	function addToCart(e) {
-		var cartItem = app.Helpers.createCartObject(e.target.parentNode);
+		var parentElem = e.target.parentNode;
+
+		var id = parentElem.getAttribute('data-id');
+
+		if (app.CartModel.isInCart(id)) {
+			return;
+		}
+
+		var cartItem = app.Helpers.createCartObject(parentElem);
 
 		app.CartModel.addItem(cartItem);
 		app.CartView.render();
