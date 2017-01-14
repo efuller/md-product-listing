@@ -34,6 +34,8 @@ app.Helpers.buildCart = function composeCart(items) {
 
 	// Loop over each cart item.
 	items.forEach(function(item) {
+		var quantity = item.quantity || 1;
+
 		var output = '';
 		output += '<div data-id="' + item.id + '" class="item-row">';
 		output += '<div class="item-image">';
@@ -45,7 +47,7 @@ app.Helpers.buildCart = function composeCart(items) {
 		output += '<span class="price">$' + item.price + '</span>';
 		output += '</div>';
 		output += '<div class="item-quantity">';
-		output += '<input type="number" value="1" class="quantity">';
+		output += '<input type="number" value="' + item.quantity + '" class="quantity">';
 		output += '</div>';
 		output += '<div class="item-remove">';
 		output += '<button class="remove">X</button>';

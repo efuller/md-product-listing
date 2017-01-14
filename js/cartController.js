@@ -53,11 +53,17 @@ app.CartController = function() {
 	// Handle quantity changes.
 	function handleQuantityChange(e) {
 		var id = app.Helpers.getGrandParentNode(e.target.parentNode).getAttribute('data-id');
+		var value = e.target.value;
 
 		// If quantity is 0.
-		if (parseInt(e.target.value) <= 0) {
+		if (parseInt(value) <= 0) {
 			app.CartModel.removeItem(id);
 			app.CartView.render();
+		} else {
+			app.CartModel.updateByID(id, { quantity: value});
+			app.CartModel.updateSubtotal();
+			app.CartModel.updateTotal();
+			// app.CartView.render();
 		}
 	}
 
@@ -70,8 +76,9 @@ app.CartController = function() {
 		}
 
 		// If we are changing the quantity of an item in the shopping cart.
-		if (e.target.className === 'quantity' && e.type === 'change') {
+		if (e.target.parentNode.className === 'item-quantity' && e.type === 'change') {
 			handleQuantityChange(e);
+			e.target.focus();
 		}
 
 		return false;

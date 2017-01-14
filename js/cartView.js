@@ -16,6 +16,10 @@ app.CartView = ( function() {
 		updateTotalView();
 	}
 
+	function updateQuantityView() {
+
+	}
+
 	// Update the total
 	function updateTotalView() {
 		var total = app.CartModel.getTotal();

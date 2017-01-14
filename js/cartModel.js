@@ -29,6 +29,42 @@ app.CartModel = ( function() {
 		return cartObject.items; // Return cart items.
 	}
 
+	// Find an item by ID.
+	function findByID(id) {
+		// Get items.
+		var items = getItems();
+
+		// Find the item with the id passed in.
+		var item = items.filter(function(item) {
+			return item.id = id;
+		});
+
+		// Return the item if we found one.
+		if (!item) {
+			console.warn('There was no item with that ID.');
+			return false;
+		} else {
+			return item;
+		}
+	}
+
+	// Update and item by ID.
+	function updateByID(id, obj) {
+
+		// Loop over the cart items and update the appropriate one.
+		cartObject.items.forEach(function(cartItem) {
+			// If we found an item with the provided ID.
+			if (parseInt(cartItem.id) === parseInt(id)) {
+				// Loop over the items properties and change them.
+				for(var prop in obj) {
+					if (obj[prop] !== cartItem[prop]) {
+						cartItem[prop] = obj[prop];
+					}
+				}
+			}
+		});
+	}
+
 	// Update total.
 	function updateTotal() {
 
@@ -85,6 +121,7 @@ app.CartModel = ( function() {
 		getSubtotal: getSubtotal,
 		getTotal: getTotal,
 		updateTotal: updateTotal,
+		updateByID: updateByID,
 		cartObject: cartObject,
 	}
 })();
