@@ -21,6 +21,13 @@ app.CartModel = ( function() {
 		return cartObject.codes;
 	}
 
+	function resetCart() {
+		cartObject.items = [];
+		cartObject.currentCode = null;
+		cartObject.discount = 0;
+		cartObject.subtotal = 0;
+		cartObject.total = 0;
+	}
 
 	// Get the cart.
 	function getCart() {
@@ -105,11 +112,11 @@ app.CartModel = ( function() {
 	function isValidCode(code) {
 		var codes = getDiscountCodes();
 
-		if (!codes[code]) {
-			return false;
+		if (codes[code]) {
+			return true;
 		}
 
-		return true;
+		return false;
 	}
 
 	function setCurrentCode(code) {
@@ -119,6 +126,9 @@ app.CartModel = ( function() {
 			return;
 		}
 
+		if (!isItWorthIt(code)) {
+			return;
+		}
 		cartObject.currentCode = code;
 	}
 
@@ -149,15 +159,50 @@ app.CartModel = ( function() {
 		updateTotal();
 	}
 
-	function isItWorthIt(newDiscount) {
+	function isItWorthIt(newCode) {
 		// Bail if there is no current code.
-		if (!getCurrentCode()) {
-			return true;
+		// if (!getCurrentCode()) {
+		// 	return true;
+		// }
+
+		if (!isValidCode(newCode)) {
+			console.warn('Not a valid code.');
+			return false;
 		}
+
+		var newDiscount = calculateDiscounts(newCode);
 
 		var potentialDiscount = cartObject.subtotal - newDiscount;
 
 		return potentialDiscount <= cartObject.total;
+	}
+
+	function calculateDiscounts(code) {
+		if (code === "10OFFONE") {
+			var highestPricedItem = getHighestPricedItem();
+			return (highestPricedItem.price * highestPricedItem.quantity) * cartObject.codes["10OFFONE"];
+		}
+
+		if (code === "15OFFCANVAS") {
+			var canvasItems = findByCategory('canvas');
+			var totalPrice = 0;
+
+			if (canvasItems.length === 1) {
+				totalPrice = canvasItems[0].price * canvasItems[0].quantity;
+			} else {
+				totalPrice = canvasItems.reduce(function(acc, current) {
+					return parseFloat(acc) + parseFloat(current.price * current.quantity);
+				}, 0);
+			}
+
+			return totalPrice * cartObject.codes["15OFFCANVAS"];
+		}
+
+		if (code === "5OFFTOTAL") {
+			return cartObject.subtotal * cartObject.codes["5OFFTOTAL"];
+		}
+
+		return false;
 	}
 
 	function updateDiscount() {
@@ -173,46 +218,34 @@ app.CartModel = ( function() {
 		// This is where all the magic will happen.
 		switch(code) {
 			case "10OFFONE":
-				var highestPricedItem = getHighestPricedItem();
-				var discount10 = (highestPricedItem.price * highestPricedItem.quantity) * cartObject.codes["10OFFONE"];
 
 				// Bail if it's not worth it!
-				if (!isItWorthIt(discount10)) {
+				if (!isItWorthIt(code)) {
 					break;
 				}
 
+				var discount10 = calculateDiscounts(code);
 				cartObject.discount = discount10.toFixed(2);
 				updateTotal();
 				break;
 			case "15OFFCANVAS":
-				var canvasItems = findByCategory('canvas');
-				var totalPrice = 0;
-
-				if (canvasItems.length === 1) {
-					totalPrice = canvasItems[0].price * canvasItems[0].quantity;
-				} else {
-					totalPrice = canvasItems.reduce(function(acc, current) {
-						return parseFloat(acc) + parseFloat(current.price * current.quantity);
-					}, 0);
-				}
-
-				var discount15 = totalPrice * cartObject.codes["15OFFCANVAS"];
-
-				if (!isItWorthIt(discount15)) {
+				if (!isItWorthIt(code)) {
 					break;
 				}
+
+				var discount15 = calculateDiscounts(code);
 
 				cartObject.discount = discount15.toFixed(2);
 				updateTotal();
 
 				break;
 			case "5OFFTOTAL":
-				var discount5 = cartObject.subtotal * cartObject.codes["5OFFTOTAL"];
-
 				// Bail if it's not worth it!
-				if (!isItWorthIt(discount5)) {
+				if (!isItWorthIt(code)) {
 					break;
 				}
+
+				var discount5 = calculateDiscounts(code);
 
 				cartObject.discount = discount5.toFixed(2);
 				updateTotal();
@@ -228,6 +261,11 @@ app.CartModel = ( function() {
 		var newItems = cartObject.items.filter(function(item) {
 			return item.id !== id;
 		});
+
+		if (newItems.length === 0) {
+			resetCart();
+			return false;
+		}
 
 		// Set the items.
 		cartObject.items = newItems;
@@ -255,5 +293,6 @@ app.CartModel = ( function() {
 		setCurrentCode: setCurrentCode,
 		getCurrentCode: getCurrentCode,
 		updateDiscount: updateDiscount,
+		resetCart: resetCart,
 	}
 })();

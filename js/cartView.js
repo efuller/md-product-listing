@@ -11,6 +11,10 @@ app.CartView = ( function() {
 		// Get all the cart items.
 		var items = app.CartModel.getItems();
 
+		if (items.length === 0) {
+			app.CartModel.resetCart();
+		}
+
 		buildCartView(items);
 		app.CartModel.updateDiscount();
 		updateSubtotalView();
