@@ -20,6 +20,8 @@ app.CartController = function() {
 		dom.shoppingCart = document.getElementById('shopping-cart-list');
 		dom.updatePriceContainer = document.getElementById('update-price-container');
 		dom.updatePrice = document.getElementById('update-price');
+		dom.discountBtn = document.getElementById('discount-code-btn');
+		dom.discountInput = document.getElementById('promo-code');
 	}
 
 	// Bind events.
@@ -33,7 +35,11 @@ app.CartController = function() {
 		// Bind the delete item from the cart.
 		dom.shoppingCart.addEventListener('click', handleCartClicks);
 
+		// Bind the update price button.
 		dom.updatePrice.addEventListener('click', handlePriceUpdate);
+
+		// Bind discount code button.
+		dom.discountBtn.addEventListener('click', handleDiscountCode);
 
 		// Bind a change event for the quantity input
 		dom.shoppingCart.addEventListener('change', handleCartClicks)
@@ -52,6 +58,25 @@ app.CartController = function() {
 		// Remove the item from the cart model.
 		app.CartModel.removeItem(id);
 		app.CartView.render();
+	}
+
+	function handleDiscountCode(e) {
+		var userCode = dom.discountInput.value.trim();
+
+		// Check to see if it is a valid code.
+		if (!app.CartModel.isValidCode(userCode)) {
+			console.warn('Not a valid code');
+			return;
+		}
+
+		app.CartModel.setCurrentCode(userCode);
+
+		// If it is, update the total price
+		app.CartModel.updateDiscount();
+		app.CartView.updateTotalAndSubtotalView();
+
+		// Clear the discount input
+		dom.discountInput.value = '';
 	}
 
 	// Handle quantity changes.
@@ -87,8 +112,10 @@ app.CartController = function() {
 
 	function handlePriceUpdate() {
 		app.CartModel.updateSubtotal();
+		app.CartModel.updateDiscount();
 		app.CartModel.updateTotal();
 		app.CartView.render();
+		dom.updatePriceContainer.style.display = "none";
 	}
 
 	// Add and item to the cart.

@@ -12,6 +12,7 @@ app.CartView = ( function() {
 		var items = app.CartModel.getItems();
 
 		buildCartView(items);
+		app.CartModel.updateDiscount();
 		updateSubtotalView();
 		updateTotalView();
 	}

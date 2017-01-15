@@ -10,10 +10,17 @@ app.CartModel = ( function() {
 			'5OFFTOTAL': 0.05,
 		},
 		currentCode: null,
+		discount: 0,
 		subtotal: 0,
 		total: 0,
 		items: [],
 	};
+
+	// Get discount codes
+	function getDiscountCodes() {
+		return cartObject.codes;
+	}
+
 
 	// Get the cart.
 	function getCart() {
@@ -32,6 +39,23 @@ app.CartModel = ( function() {
 	// Get all the items in the cart.
 	function getItems() {
 		return cartObject.items; // Return cart items.
+	}
+
+	// Get the highest priced item in the cart.
+	function getHighestPricedItem() {
+		var items = getItems();
+
+		// Bail if no items.
+		if (!items) {
+			return;
+		}
+
+		// Sort the items on price.
+		var sorted = items.sort(function(a,b) {
+			return a.price - b.price;
+		});
+
+		return sorted[sorted.length - 1];
 	}
 
 	// See if an item is already in the cart.
@@ -64,13 +88,42 @@ app.CartModel = ( function() {
 		});
 	}
 
+	// Find by category
+	function findByCategory(category) {
+		var items = getItems();
+
+		return items.filter(function(item) {
+			return item.category.toLowerCase() === category.toLowerCase();
+		});
+	}
+
 	// Update total.
 	function updateTotal() {
+		cartObject.total = cartObject.subtotal - cartObject.discount;
+	}
 
-		// If there is no active codes.
-		if (!cartObject.currentCode) {
-			cartObject.total = cartObject.subtotal;
+	function isValidCode(code) {
+		var codes = getDiscountCodes();
+
+		if (!codes[code]) {
+			return false;
 		}
+
+		return true;
+	}
+
+	function setCurrentCode(code) {
+
+		// Bail if no code.
+		if (!code) {
+			return;
+		}
+
+		cartObject.currentCode = code;
+	}
+
+	function getCurrentCode() {
+		return cartObject.currentCode;
 	}
 
 	// Update subtotal.
@@ -96,6 +149,79 @@ app.CartModel = ( function() {
 		updateTotal();
 	}
 
+	function isItWorthIt(newDiscount) {
+		// Bail if there is no current code.
+		if (!getCurrentCode()) {
+			return true;
+		}
+
+		var potentialDiscount = cartObject.subtotal - newDiscount;
+
+		return potentialDiscount <= cartObject.total;
+	}
+
+	function updateDiscount() {
+		var code = getCurrentCode();
+
+		// Bail if no code
+		if (!code) {
+			return;
+		}
+
+		code = code.toUpperCase();
+
+		// This is where all the magic will happen.
+		switch(code) {
+			case "10OFFONE":
+				var highestPricedItem = getHighestPricedItem();
+				var discount10 = (highestPricedItem.price * highestPricedItem.quantity) * cartObject.codes["10OFFONE"];
+
+				// Bail if it's not worth it!
+				if (!isItWorthIt(discount10)) {
+					break;
+				}
+
+				cartObject.discount = discount10.toFixed(2);
+				updateTotal();
+				break;
+			case "15OFFCANVAS":
+				var canvasItems = findByCategory('canvas');
+				var totalPrice = 0;
+
+				if (canvasItems.length === 1) {
+					totalPrice = canvasItems[0].price * canvasItems[0].quantity;
+				} else {
+					totalPrice = canvasItems.reduce(function(acc, current) {
+						return parseFloat(acc) + parseFloat(current.price * current.quantity);
+					}, 0);
+				}
+
+				var discount15 = totalPrice * cartObject.codes["15OFFCANVAS"];
+
+				if (!isItWorthIt(discount15)) {
+					break;
+				}
+
+				cartObject.discount = discount15.toFixed(2);
+				updateTotal();
+
+				break;
+			case "5OFFTOTAL":
+				var discount5 = cartObject.subtotal * cartObject.codes["5OFFTOTAL"];
+
+				// Bail if it's not worth it!
+				if (!isItWorthIt(discount5)) {
+					break;
+				}
+
+				cartObject.discount = discount5.toFixed(2);
+				updateTotal();
+				break;
+			default:
+				break;
+		}
+	}
+
 	// Remove an item from the cart.
 	function removeItem(id) {
 		// Find the item
@@ -108,6 +234,7 @@ app.CartModel = ( function() {
 
 		// Update the subtotal.
 		updateSubtotal();
+		updateDiscount();
 		updateTotal();
 	}
 
@@ -124,5 +251,9 @@ app.CartModel = ( function() {
 		updateTotal: updateTotal,
 		updateByID: updateByID,
 		cartObject: cartObject,
+		isValidCode: isValidCode,
+		setCurrentCode: setCurrentCode,
+		getCurrentCode: getCurrentCode,
+		updateDiscount: updateDiscount,
 	}
 })();
