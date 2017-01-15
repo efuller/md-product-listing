@@ -31,7 +31,13 @@
         <a href="/md-projects" class="hero-home-link">Projects Home</a>
     </div>
 </header>
-
+<div id="tiny-cart-container">
+	<div class="tiny-cart">
+		<div class="cart-count">7</div>
+		<span>cart</span>
+	</div>
+	<div id="close-cart">X</div>
+</div>
 <section class="products">
     <div class="container">
         <div id="cards" class="cards">
@@ -134,8 +140,9 @@
         </div>
     </div><!-- .container -->
 </section><!-- .products -->
-<section class="shopping-cart">
-    <div class="container">
+<div id="overlay"></div>
+<section id="shopping-cart" class="shopping-cart">
+	<div class="container">
         <header class="shopping-cart-header">
             <h2>Shopping Cart</h2>
         </header>
@@ -144,7 +151,7 @@
 	        </div>
 	        <div id="update-price-container" class="item-row right">
 		        <div class="update-cart-container">
-			        <button id="update-price">Update Price</button>
+			        <button id="update-price">Update Cart</button>
 		        </div>
 	        </div>
             <div class="item-row right">
@@ -161,7 +168,7 @@
                         <div class="subtotal-value"></div>
                     </div>
                     <div class="total promo">
-                        <div class="total-label">Coupon / Promo Code:</div>
+                        <div class="promo-total-label">Coupon / Promo Code: <span></span></div>
                         <div class="promo-total-value">$0.00</div>
                     </div>
                     <div class="total order-total">

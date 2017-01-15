@@ -16,12 +16,16 @@ app.CartController = function() {
 
 	// Cache DOM elements.
 	function cacheDOM() {
+		dom.body = document.body;
 		dom.addToCartBtns = document.querySelectorAll('#cards .add-to-cart');
-		dom.shoppingCart = document.getElementById('shopping-cart-list');
+		dom.shoppingCartList = document.getElementById('shopping-cart-list');
 		dom.updatePriceContainer = document.getElementById('update-price-container');
 		dom.updatePrice = document.getElementById('update-price');
 		dom.discountBtn = document.getElementById('discount-code-btn');
 		dom.discountInput = document.getElementById('promo-code');
+		dom.tinyCart = document.getElementById('tiny-cart-container');
+		dom.shoppingCart = document.getElementById('shopping-cart');
+		dom.overlay = document.getElementById('overlay');
 	}
 
 	// Bind events.
@@ -33,7 +37,7 @@ app.CartController = function() {
 		}
 
 		// Bind the delete item from the cart.
-		dom.shoppingCart.addEventListener('click', handleCartClicks);
+		dom.shoppingCartList.addEventListener('click', handleCartClicks);
 
 		// Bind the update price button.
 		dom.updatePrice.addEventListener('click', handlePriceUpdate);
@@ -41,8 +45,21 @@ app.CartController = function() {
 		// Bind discount code button.
 		dom.discountBtn.addEventListener('click', handleDiscountCode);
 
-		// Bind a change event for the quantity input
-		dom.shoppingCart.addEventListener('change', handleCartClicks)
+		// Bind a change event for the quantity input.
+		dom.shoppingCart.addEventListener('change', handleCartClicks);
+
+		// Bind tiny cart button to shopping cart.
+		dom.tinyCart.addEventListener('click', handleTinyCart, false);
+
+		dom.overlay.addEventListener('click', handleTinyCart);
+	}
+
+	function handleTinyCart(e) {
+		if (dom.body.classList.contains('cart-opened')) {
+			dom.body.classList.remove('cart-opened', 'fixed');
+		} else {
+			dom.body.classList.add('cart-opened', 'fixed');
+		}
 	}
 
 	// Delete item from cart.

@@ -48,6 +48,20 @@ app.CartModel = ( function() {
 		return cartObject.items; // Return cart items.
 	}
 
+	function getDiscount() {
+		return cartObject.discount;
+	}
+
+	function getTotalItemCount() {
+		var items = getItems();
+
+		var total = items.reduce(function(acc, current) {
+			return acc += parseInt(current.quantity);
+		}, 0);
+
+		return total;
+	}
+
 	// Get the highest priced item in the cart.
 	function getHighestPricedItem() {
 		var items = getItems();
@@ -294,5 +308,7 @@ app.CartModel = ( function() {
 		getCurrentCode: getCurrentCode,
 		updateDiscount: updateDiscount,
 		resetCart: resetCart,
+		getTotalItemCount: getTotalItemCount,
+		getDiscount: getDiscount,
 	}
 })();
