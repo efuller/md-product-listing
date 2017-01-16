@@ -352,6 +352,7 @@ body.cart-opened #shopping-cart {
 
 #close-cart {
 	background-color: #f2b632;
+	cursor: pointer;
 	top: 0;
 	position: absolute;
 	height: 100%;

@@ -2,67 +2,25 @@ var app = app || {};
 
 // The controller of sorts.
 
-app.CartController = function() {
+app.CartController = ( function() {
 
 	// Cache object for DOM elements.
 	var dom = {};
 
 	// Start things up.
 	function init () {
+
+		// Cache the DOM.
 		cacheDOM();
-		bindEvents();
-		app.CartView.init();
 	}
 
 	// Cache DOM elements.
 	function cacheDOM() {
-		dom.body = document.body;
-		dom.addToCartBtns = document.querySelectorAll('#cards .add-to-cart');
-		dom.shoppingCartList = document.getElementById('shopping-cart-list');
 		dom.updatePriceContainer = document.getElementById('update-price-container');
-		dom.updatePrice = document.getElementById('update-price');
-		dom.discountBtn = document.getElementById('discount-code-btn');
-		dom.discountInput = document.getElementById('promo-code');
-		dom.tinyCart = document.getElementById('tiny-cart-container');
-		dom.shoppingCart = document.getElementById('shopping-cart');
-		dom.overlay = document.getElementById('overlay');
-	}
-
-	// Bind events.
-	function bindEvents() {
-
-		// Bind the Add to Cart button for items.
-		for (var i = 0; i < dom.addToCartBtns.length; i++) {
-			dom.addToCartBtns[i].addEventListener('click', addToCart);
-		}
-
-		// Bind the delete item from the cart.
-		dom.shoppingCartList.addEventListener('click', handleCartClicks);
-
-		// Bind the update price button.
-		dom.updatePrice.addEventListener('click', handlePriceUpdate);
-
-		// Bind discount code button.
-		dom.discountBtn.addEventListener('click', handleDiscountCode);
-
-		// Bind a change event for the quantity input.
-		dom.shoppingCart.addEventListener('change', handleCartClicks);
-
-		// Bind tiny cart button to shopping cart.
-		dom.tinyCart.addEventListener('click', handleTinyCart, false);
-
-		dom.overlay.addEventListener('click', handleTinyCart);
-	}
-
-	function handleTinyCart(e) {
-		if (dom.body.classList.contains('cart-opened')) {
-			dom.body.classList.remove('cart-opened', 'fixed');
-		} else {
-			dom.body.classList.add('cart-opened', 'fixed');
-		}
 	}
 
 	// Delete item from cart.
+	// @todo This function can be refactored further. Move some functionality into view.
 	function deleteFromCart(e) {
 		// Get the id of the item.
 		var id = app.Helpers.getGrandParentNode(e.target.parentNode).getAttribute('data-id');
@@ -77,27 +35,25 @@ app.CartController = function() {
 		app.CartView.render();
 	}
 
-	function handleDiscountCode(e) {
-		var userCode = dom.discountInput.value.trim();
+	// Apply a discount code.
+	function applyDiscountCode(code) {
 
 		// Check to see if it is a valid code.
-		if (!app.CartModel.isValidCode(userCode)) {
+		if (!app.CartModel.isValidCode(code)) {
 			console.warn('Not a valid code');
 			return;
 		}
 
-		app.CartModel.setCurrentCode(userCode);
+		// Set the current code.
+		app.CartModel.setCurrentCode(code);
 
 		// If it is, update the total price
 		app.CartModel.updateDiscount();
 		app.CartView.updateTotalAndSubtotalView();
-
-		// Clear the discount input
-		dom.discountInput.value = '';
 	}
 
 	// Handle quantity changes.
-	function handleQuantityChange(e) {
+	function quantityChange(e) {
 		var id = app.Helpers.getGrandParentNode(e.target.parentNode).getAttribute('data-id');
 		var value = e.target.value;
 
@@ -107,51 +63,58 @@ app.CartController = function() {
 			app.CartView.render();
 		} else {
 			app.CartModel.updateByID(id, {quantity: value});
+			// @todo This shouldn't be here. It should be part of the view.
 			dom.updatePriceContainer.style.display = "flex";
 		}
 	}
 
-	// Cart click handler.
-	function handleCartClicks(e) {
-
-		// If we are clicking the delete button.
-		if (e.target.className === 'remove' && e.type === 'click') {
-			deleteFromCart(e);
-		}
-
-		// If we are changing the quantity of an item in the shopping cart.
-		if (e.target.parentNode.className === 'item-quantity' && e.type === 'change') {
-			handleQuantityChange(e);
-		}
-
-		return false;
-	}
-
-	function handlePriceUpdate() {
+	// Update the price.
+	function priceUpdate() {
 		app.CartModel.updateSubtotal();
 		app.CartModel.updateDiscount();
 		app.CartModel.updateTotal();
-		app.CartView.render();
-		dom.updatePriceContainer.style.display = "none";
 	}
 
 	// Add and item to the cart.
+	// @todo This function needs refactored. Some of this can be put into the view function.
 	function addToCart(e) {
+
+		// Get the parent element.
 		var parentElem = e.target.parentNode;
 
+		// Get the ID from the parent element.
 		var id = parentElem.getAttribute('data-id');
 
+		// Bail if the item is already in the cart.
 		if (app.CartModel.isInCart(id)) {
 			return;
 		}
 
+		// Compose the cart item.
 		var cartItem = app.Helpers.createCartObject(parentElem);
 
+		// Insert the cart item.
 		app.CartModel.addItem(cartItem);
+
+		// Render.
 		app.CartView.render();
+	}
+
+	function updateDiscount() {
+		app.CartModel.updateDiscount();
 	}
 
 	// Engage.
 	init();
-};
+
+	// Public API.
+	return {
+		deleteFromCart: deleteFromCart,
+		quantityChange: quantityChange,
+		priceUpdate: priceUpdate,
+		applyDiscountCode: applyDiscountCode,
+		addToCart: addToCart,
+		updateDiscount: updateDiscount,
+	}
+})();
 

@@ -1,4 +1,5 @@
 var app = app || {};
 (function(window, app) {
-	app.CartController()
+	// Engage the app.
+	app.CartView.init();
 })(window, app);

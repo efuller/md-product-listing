@@ -1,5 +1,10 @@
 var app = app || {};
 
+/**
+ * A sort of modal for our cart object.
+ * @todo There are many functions here that could/should be pulled into the controller.
+ */
+
 app.CartModel = ( function() {
 
 	// The main cart object.
@@ -16,17 +21,9 @@ app.CartModel = ( function() {
 		items: [],
 	};
 
-	// Get discount codes
+	// Get discount codes.
 	function getDiscountCodes() {
 		return cartObject.codes;
-	}
-
-	function resetCart() {
-		cartObject.items = [];
-		cartObject.currentCode = null;
-		cartObject.discount = 0;
-		cartObject.subtotal = 0;
-		cartObject.total = 0;
 	}
 
 	// Get the cart.
@@ -39,6 +36,7 @@ app.CartModel = ( function() {
 		return cartObject.subtotal;
 	}
 
+	// Get the cart total.
 	function getTotal() {
 		return cartObject.total;
 	}
@@ -48,13 +46,16 @@ app.CartModel = ( function() {
 		return cartObject.items; // Return cart items.
 	}
 
+	// Get the discount.
 	function getDiscount() {
 		return cartObject.discount;
 	}
 
+	// Get total item count. This includes quantity of each.
 	function getTotalItemCount() {
 		var items = getItems();
 
+		// Get the total count.
 		var total = items.reduce(function(acc, current) {
 			return acc += parseInt(current.quantity);
 		}, 0);
@@ -77,6 +78,15 @@ app.CartModel = ( function() {
 		});
 
 		return sorted[sorted.length - 1];
+	}
+
+	// Reset all car values.
+	function resetCart() {
+		cartObject.items = [];
+		cartObject.currentCode = null;
+		cartObject.discount = 0;
+		cartObject.subtotal = 0;
+		cartObject.total = 0;
 	}
 
 	// See if an item is already in the cart.
@@ -109,10 +119,11 @@ app.CartModel = ( function() {
 		});
 	}
 
-	// Find by category
+	// Find by category.
 	function findByCategory(category) {
 		var items = getItems();
 
+		// Return the item in the provided category.
 		return items.filter(function(item) {
 			return item.category.toLowerCase() === category.toLowerCase();
 		});
@@ -123,6 +134,7 @@ app.CartModel = ( function() {
 		cartObject.total = cartObject.subtotal - cartObject.discount;
 	}
 
+	// Check to see if a code is valid.
 	function isValidCode(code) {
 		var codes = getDiscountCodes();
 
@@ -133,6 +145,12 @@ app.CartModel = ( function() {
 		return false;
 	}
 
+	// Get the current code.
+	function getCurrentCode() {
+		return cartObject.currentCode;
+	}
+
+	// Set the current code.
 	function setCurrentCode(code) {
 
 		// Bail if no code.
@@ -140,14 +158,12 @@ app.CartModel = ( function() {
 			return;
 		}
 
+		// The the new code better than the current?
 		if (!isItWorthIt(code)) {
 			return;
 		}
-		cartObject.currentCode = code;
-	}
 
-	function getCurrentCode() {
-		return cartObject.currentCode;
+		cartObject.currentCode = code;
 	}
 
 	// Update subtotal.
@@ -173,34 +189,38 @@ app.CartModel = ( function() {
 		updateTotal();
 	}
 
+	// Is the newer code better than the previous?
 	function isItWorthIt(newCode) {
-		// Bail if there is no current code.
-		// if (!getCurrentCode()) {
-		// 	return true;
-		// }
 
 		if (!isValidCode(newCode)) {
 			console.warn('Not a valid code.');
 			return false;
 		}
 
+		// Figure the new discount.
 		var newDiscount = calculateDiscounts(newCode);
 
+		// This is what we got!
 		var potentialDiscount = cartObject.subtotal - newDiscount;
 
 		return potentialDiscount <= cartObject.total;
 	}
 
+	// Calculate the discounts.
 	function calculateDiscounts(code) {
+
+		// If using the "10OFFONE" code.
 		if (code === "10OFFONE") {
 			var highestPricedItem = getHighestPricedItem();
 			return (highestPricedItem.price * highestPricedItem.quantity) * cartObject.codes["10OFFONE"];
 		}
 
+		// If using the "15OFFCANVAS" code.
 		if (code === "15OFFCANVAS") {
 			var canvasItems = findByCategory('canvas');
 			var totalPrice = 0;
 
+			// Calculate total price.
 			if (canvasItems.length === 1) {
 				totalPrice = canvasItems[0].price * canvasItems[0].quantity;
 			} else {
@@ -212,6 +232,7 @@ app.CartModel = ( function() {
 			return totalPrice * cartObject.codes["15OFFCANVAS"];
 		}
 
+		// If using the "5OFFTOTAL" code.
 		if (code === "5OFFTOTAL") {
 			return cartObject.subtotal * cartObject.codes["5OFFTOTAL"];
 		}
@@ -219,6 +240,7 @@ app.CartModel = ( function() {
 		return false;
 	}
 
+	// Update the discount.
 	function updateDiscount() {
 		var code = getCurrentCode();
 
@@ -238,30 +260,45 @@ app.CartModel = ( function() {
 					break;
 				}
 
+				// Calculate the discount.
 				var discount10 = calculateDiscounts(code);
+
+				// Set the discount.
 				cartObject.discount = discount10.toFixed(2);
+
+				// Update the total.
 				updateTotal();
 				break;
 			case "15OFFCANVAS":
+
+				// Bail if the new code isn't worth it.
 				if (!isItWorthIt(code)) {
 					break;
 				}
 
+				// Calculate the discount.
 				var discount15 = calculateDiscounts(code);
 
+				// Set the discount.
 				cartObject.discount = discount15.toFixed(2);
-				updateTotal();
 
+				// Update the total.
+				updateTotal();
 				break;
 			case "5OFFTOTAL":
+
 				// Bail if it's not worth it!
 				if (!isItWorthIt(code)) {
 					break;
 				}
 
+				// Calculate the discount.
 				var discount5 = calculateDiscounts(code);
 
+				// Set the discount.
 				cartObject.discount = discount5.toFixed(2);
+
+				// Update the total.
 				updateTotal();
 				break;
 			default:
@@ -276,6 +313,7 @@ app.CartModel = ( function() {
 			return item.id !== id;
 		});
 
+		// If no items, reset the cart.
 		if (newItems.length === 0) {
 			resetCart();
 			return false;
